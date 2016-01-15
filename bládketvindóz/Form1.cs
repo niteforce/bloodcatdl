@@ -48,37 +48,65 @@ namespace bládketvindóz
 
         private void ListFill(float minAr = 0, int p = 0)
         {
-            for (int i = p; i < oldalid*40; i++)
+
+            for (int i = p; i < oldalid * 40; i++)
             {
-                if ((idk.Contains(pagemaps[i].id)) && (!(pagemaps[i].maximumAr >= minAr))) continue;
-                {
-                    lvi = new ListViewItem();
-                    lvi.Text = pagemaps[i].id; //ID hozzáadása
 
-                    ListViewItem.ListViewSubItem subItem = new ListViewItem.ListViewSubItem(lvi, "Title");      //Címek hozzáadása   
-                    subItem.Text = pagemaps[i].title;
-                    lvi.SubItems.Add(subItem);
-                    ListViewItem.ListViewSubItem subItem2 = new ListViewItem.ListViewSubItem(lvi, "AR");
-                    string arek = "";
-                    arek += pagemaps[i].minimumAr + "  -  ";
-                    arek += pagemaps[i].maximumAr;
-                    subItem2.Text = arek;
-                    lvi.SubItems.Add(subItem2);
-                    ListViewItem.ListViewSubItem subItem3 = new ListViewItem.ListViewSubItem(lvi, "Length");
 
-                    string hossz = "";
-                    if (double.Parse(pagemaps[i].beatmaps[0].length) / 60 >= 1)
-                        hossz = (double.Parse(pagemaps[i].beatmaps[0].length) / 60).ToString("##.##") + " mins";
-                    else
-                        hossz = pagemaps[i].beatmaps[0].length + " s ";
 
-                    subItem3.Text = hossz;
-                    lvi.SubItems.Add(subItem3);
-                    listView1.Items.Add(lvi);
 
-                }
+                if (!idk.Contains(pagemaps[i].id))
+                    if (pagemaps[i].maximumAr >= minAr)
+                    {
+                        {
+                            lvi = new ListViewItem();
+                            lvi.Text = pagemaps[i].id; //ID hozzáadása
+
+                            ListViewItem.ListViewSubItem subItem = new ListViewItem.ListViewSubItem(lvi, "Title");      //Címek hozzáadása   
+                            subItem.Text = pagemaps[i].title;
+                            lvi.SubItems.Add(subItem);
+
+                            ListViewItem.ListViewSubItem subItem2 = new ListViewItem.ListViewSubItem(lvi, "AR");
+
+
+                            string arek = "";
+
+                            arek += pagemaps[i].minimumAr + "  -  ";
+
+                            arek += pagemaps[i].maximumAr;
+
+
+
+                            subItem2.Text = arek;
+                            lvi.SubItems.Add(subItem2);
+
+
+                            ListViewItem.ListViewSubItem subItem3 = new ListViewItem.ListViewSubItem(lvi, "Length");
+
+                            string hossz = "";
+                            if (double.Parse(pagemaps[i].beatmaps[0].length) / 60 >= 1)
+                                hossz = (double.Parse(pagemaps[i].beatmaps[0].length) / 60).ToString("##.##") + " mins";
+                            else
+                                hossz = pagemaps[i].beatmaps[0].length + " s ";
+
+
+                            subItem3.Text = hossz;
+                            lvi.SubItems.Add(subItem3);
+
+
+                            listView1.Items.Add(lvi);
+
+                        }
+
+                    }
+
             }
+
+
+
         }
+
+
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -152,14 +180,12 @@ namespace bládketvindóz
                 Directory.CreateDirectory(textBox1.Text + "\\Songs\\");
                 Button clickedButton = (Button)sender;
                 threads = threadselected;
-                wc = new WebClient[threadselected];
-                o = new NetSpeedCounter[threadselected];
+                wc = new WebClient[10];
+                o = new NetSpeedCounter[10];
                 WebRequest.DefaultWebProxy = null;
                 refillmaps();
 
-                lvi.ListView.Items.Clear();
-               
-                ListFill((float)numericUpDown1.Value);
+
                 
 
 
@@ -302,7 +328,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -342,7 +368,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -381,7 +407,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -420,7 +446,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -460,7 +486,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -494,8 +520,8 @@ namespace bládketvindóz
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
                 File.Move(textBox1.Text + "\\Songs\\" + a[4] + ".oszx", textBox1.Text + "\\Songs\\" + a[4] + ".osz");
-                a[x] = listView1.Items[x].SubItems[0].Text;
 
+                a[x] = listView1.Items[x].SubItems[0].Text;
                 idk.Add(a[4]);
                 lvi.ListView.Items.Clear();
                 oldalid--;
@@ -503,6 +529,7 @@ namespace bládketvindóz
                 oldalid++;
                 refillmaps();
 
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -541,7 +568,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -574,15 +601,15 @@ namespace bládketvindóz
                     wc[x] = new WebClient();
                     o[x] = new NetSpeedCounter(wc[x], 5);
                      File.Move(textBox1.Text + "\\Songs\\" + a[2] + ".oszx", textBox1.Text + "\\Songs\\" + a[2] + ".osz");
+                   
                     a[x] = listView1.Items[x].SubItems[0].Text;
-
                     idk.Add(a[2]);
                     lvi.ListView.Items.Clear();
                     oldalid--;
                     ListFill((float)numericUpDown1.Value);
                     oldalid++;
                     refillmaps();
-
+                   
                     using (wc[x])
                     {
                         wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -622,7 +649,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
@@ -658,6 +685,7 @@ namespace bládketvindóz
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
                 File.Move(textBox1.Text + "\\Songs\\" + a[0] + ".oszx", textBox1.Text + "\\Songs\\" + a[0] + ".osz");
+
                 a[x] = listView1.Items[x].SubItems[0].Text;
                 idk.Add(a[0]);
                 lvi.ListView.Items.Clear();
@@ -665,7 +693,7 @@ namespace bládketvindóz
                 ListFill((float)numericUpDown1.Value);
                 oldalid++;
                 refillmaps();
-
+                
                 using (wc[x])
                 {
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
