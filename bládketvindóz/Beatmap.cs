@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace bládketvindóz
 {
-    class Beatmap
+    public class Beatmap
     {
         public string id { get; set; }
         public string name { get; set; }

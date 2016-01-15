@@ -82,5 +82,23 @@ namespace bládketvindóz.Properties {
                 return ResourceManager.GetString("App_Config", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start DL.
+        /// </summary>
+        internal static string Form1_button2_Click_Start_DL {
+            get {
+                return ResourceManager.GetString("Form1_button2_Click_Start_DL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop.
+        /// </summary>
+        internal static string Form1_button2_Click_Stop {
+            get {
+                return ResourceManager.GetString("Form1_button2_Click_Stop", resourceCulture);
+            }
+        }
     }
 }

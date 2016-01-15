@@ -25,14 +25,10 @@ namespace bládketvindóz
             InitializeComponent();
         }
 
-        Beatmap bm = new Beatmap();
-        RootObject ro = new RootObject();
         JsonTools j = new JsonTools();
         Stopwatch s = new Stopwatch();
-
         RootObject[] h;
-
-
+        ListViewItem lvi;
 
         int oldalid = 1;
 
@@ -40,7 +36,6 @@ namespace bládketvindóz
 
         public void WhichMapsDoIHave(ref List<string> ídék)
         {
-
             List<string> folders = new List<string>();
             folders = Directory.GetDirectories(textBox1.Text + "\\Songs\\").ToList<string>();
             ídék = folders;
@@ -48,203 +43,93 @@ namespace bládketvindóz
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
-
-
-
-
-
-
-
-
             button3_Click(this, EventArgs.Empty);
-            threadselected = 10;
-            /*
-            string jsonData = j.GET("http://bloodcat.com/osu/?mod=json&p="+oldalid.ToString());
-            h = JsonConvert.DeserializeObject<RootObject[]>(jsonData);
-            oldalid++;
-            */
-        }
+            threadselected = 10;}
 
-        ListViewItem lvi;
-
-
-
-
-
-
-        private void listFill(float minAr = 0, int p = 0)
+        private void ListFill(float minAr = 0, int p = 0)
         {
-
             for (int i = p; i < oldalid*40; i++)
             {
+                if ((idk.Contains(pagemaps[i].id)) && (!(pagemaps[i].maximumAr >= minAr))) continue;
+                {
+                    lvi = new ListViewItem();
+                    lvi.Text = pagemaps[i].id; //ID hozzáadása
 
+                    ListViewItem.ListViewSubItem subItem = new ListViewItem.ListViewSubItem(lvi, "Title");      //Címek hozzáadása   
+                    subItem.Text = pagemaps[i].title;
+                    lvi.SubItems.Add(subItem);
+                    ListViewItem.ListViewSubItem subItem2 = new ListViewItem.ListViewSubItem(lvi, "AR");
+                    string arek = "";
+                    arek += pagemaps[i].minimumAr + "  -  ";
+                    arek += pagemaps[i].maximumAr;
+                    subItem2.Text = arek;
+                    lvi.SubItems.Add(subItem2);
+                    ListViewItem.ListViewSubItem subItem3 = new ListViewItem.ListViewSubItem(lvi, "Length");
 
+                    string hossz = "";
+                    if (double.Parse(pagemaps[i].beatmaps[0].length) / 60 >= 1)
+                        hossz = (double.Parse(pagemaps[i].beatmaps[0].length) / 60).ToString("##.##") + " mins";
+                    else
+                        hossz = pagemaps[i].beatmaps[0].length + " s ";
 
+                    subItem3.Text = hossz;
+                    lvi.SubItems.Add(subItem3);
+                    listView1.Items.Add(lvi);
 
-                if (!idk.Contains(pagemaps[i].id))
-                    if (pagemaps[i].maximumAr >= minAr)
-                    {
-                        {
-                            lvi = new ListViewItem();
-                            lvi.Text = pagemaps[i].id; //ID hozzáadása
-
-                            ListViewItem.ListViewSubItem subItem = new ListViewItem.ListViewSubItem(lvi, "Title");      //Címek hozzáadása   
-                            subItem.Text = pagemaps[i].title;
-                            lvi.SubItems.Add(subItem);
-
-                            ListViewItem.ListViewSubItem subItem2 = new ListViewItem.ListViewSubItem(lvi, "AR");
-
-
-                            string arek = "";
-
-                            arek += pagemaps[i].minimumAr + "  -  ";
-
-                            arek += pagemaps[i].maximumAr;
-
-
-
-                            subItem2.Text = arek;
-                            lvi.SubItems.Add(subItem2);
-
-
-                            ListViewItem.ListViewSubItem subItem3 = new ListViewItem.ListViewSubItem(lvi, "Length");
-
-                            string hossz = "";
-                            if (double.Parse(pagemaps[i].beatmaps[0].length) / 60 >= 1)
-                                hossz = (double.Parse(pagemaps[i].beatmaps[0].length) / 60).ToString("##.##") + " perc";
-                            else
-                                hossz = pagemaps[i].beatmaps[0].length + " mp ";
-
-
-                            subItem3.Text = hossz;
-                            lvi.SubItems.Add(subItem3);
-
-
-                            listView1.Items.Add(lvi);
-
-                        }
-
-                    }
-
+                }
             }
-
-            
-
         }
-
-
-
-
-
-
 
         private void button1_Click(object sender, EventArgs e)
         {
-    
-
-
-
-
             button2.Enabled = true;
-
-
             loadpage();
-
-
             while(lvi == null)
-              
-            {
-                loadpage();
-
-            }
-
-            
-
-
-
+                  loadpage();
         }
 
         private void loadpage()
         {
-
             string jsonData = j.GET("http://bloodcat.com/osu/?mod=json&p=" + oldalid.ToString());
             h = JsonConvert.DeserializeObject<RootObject[]>(jsonData);
-
-            savepage();
+            Savepage();
 
             for (int i = 0; i < h.Length - 1; i++)
             {
-
                 h[i].maximumAr = 0;
                 h[i].minimumAr = 11;
-                for (int c = 0; c < h[i].beatmaps.Count; c++)
+                foreach (Beatmap t in h[i].beatmaps)
                 {
-
-
                     try
                     {
-
-
-                        if (h[i].minimumAr > (float.Parse(h[i].beatmaps[c].ar, CultureInfo.InvariantCulture)) && (float.Parse(h[i].beatmaps[c].ar, CultureInfo.InvariantCulture) != 0))
-                        {
-                            h[i].minimumAr = Math.Round((double)float.Parse(h[i].beatmaps[c].ar, CultureInfo.InvariantCulture), 2);
-                        }
-
-
-                        if (h[i].maximumAr < float.Parse(h[i].beatmaps[c].ar, CultureInfo.InvariantCulture))
-                        {
-                            h[i].maximumAr = Math.Round((double)float.Parse(h[i].beatmaps[c].ar, CultureInfo.InvariantCulture), 2);
-
-                        }
-
-
-
+                        if (h[i].minimumAr > (float.Parse(t.ar, CultureInfo.InvariantCulture)) && (float.Parse(t.ar, CultureInfo.InvariantCulture) != 0))
+                            h[i].minimumAr = Math.Round((double)float.Parse(t.ar, CultureInfo.InvariantCulture), 2);
+                        
+                        if (h[i].maximumAr < float.Parse(t.ar, CultureInfo.InvariantCulture))
+                            h[i].maximumAr = Math.Round((double)float.Parse(t.ar, CultureInfo.InvariantCulture), 2);
+                        
                     }
-                    catch (FormatException l)
-                    {
-
-                    }
-
-
-
+                    catch (FormatException) { }
                 }
             }
-            listFill((float)numericUpDown1.Value, ((oldalid - 1) * 40));
+            ListFill((float)numericUpDown1.Value, ((oldalid - 1) * 40));
             oldalid++;
-           
         }
 
         RootObject[] pagemaps = new RootObject[65535];
 
 
-        private void savepage()      //félreteszi a mapokat egy tömbbe // kezdő vagyok pls
+        private void Savepage()      //félreteszi a mapokat egy tömbbe // kezdő vagyok pls
         {
-
-
-
             for (int i = ((oldalid - 1) * 40); i < h.Length + ((oldalid - 1) * 40); i++)
-            {
                 pagemaps[i] = new RootObject();
-
-            }
-
             for (int i = 0; i < h.Length; i++)
-            {
-
                 pagemaps[i + ((oldalid - 1) * 40)] = h[i];
-
-            }
-
-
         }
-
-
 
 
         WebClient[] wc;
         NetSpeedCounter[] o;
-
 
         int q;
         int threads;
@@ -254,51 +139,70 @@ namespace bládketvindóz
 
         private void button2_Click(object sender, EventArgs e)
         {
-            
-
-
-
             if (!isOn)
             {
+
+                radioButton1.Enabled = false;
+                radioButton2.Enabled = false;
+                radioButton3.Enabled = false;
 
                 isOn = !isOn;
                 button2.Text = "Stop";
 
                 Directory.CreateDirectory(textBox1.Text + "\\Songs\\");
                 Button clickedButton = (Button)sender;
-
                 threads = threadselected;
-                wc = new WebClient[10];
-                o = new NetSpeedCounter[10];
-
-                //    
-
+                wc = new WebClient[threadselected];
+                o = new NetSpeedCounter[threadselected];
                 WebRequest.DefaultWebProxy = null;
-
                 refillmaps();
 
+                lvi.ListView.Items.Clear();
+               
+                ListFill((float)numericUpDown1.Value);
+                
+
+
+                start:
                 for (q = 0; q < threadselected; q++)
                 {
-
-
 
                     wc[q] = new WebClient();
                     o[q] = new NetSpeedCounter(wc[q], 5);
                     a[q] = listView1.Items[q].SubItems[0].Text;
+
+                    if (File.Exists(textBox1.Text + "\\Songs\\" + a[q] + ".oszx"))
+                    {
+                        File.Delete(textBox1.Text + "\\Songs\\" + a[q] + ".oszx");
+                    }
+
+                    //if (File.Exists(textBox1.Text + "\\Songs\\" + a[q] + ".osz"))
+                    //{
+                    //    idk.Add(a[q]);
+                    //    lvi.ListView.Items.Clear();
+                    //    oldalid--;
+                    //    ListFill((float)numericUpDown1.Value);
+                    //    oldalid++;
+                    //    refillmaps();
+                    //    q++;
+
+                    //    goto start;
+
+                    //}
+
                     using (wc[q])
                     {
-
                         wc[q].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[q]),
-                        textBox1.Text + "\\Songs\\" + a[q] + ".osz");
-
-
-                        //   wc[q].DownloadFileCompleted += o[q].Stop;
-
+                        textBox1.Text + "\\Songs\\" + a[q] + ".oszx");
                         o[q].Start();
                     }
 
-
-
+                    idk.Add(a[q]);
+                    lvi.ListView.Items.Clear();
+                    oldalid--;
+                    ListFill((float)numericUpDown1.Value);
+                    oldalid++;
+                    refillmaps();
                 }
 
                 #region wcEvents
@@ -352,24 +256,17 @@ namespace bládketvindóz
 
                 }
                 #endregion
-
                 
-
             }
             else
             {
-
-
                 for (int i = 0; i < threadselected; i++)
-                {
                     using (wc[i])
-                    {
-                        wc[i].CancelAsync();
+                           wc[i].CancelAsync();
 
-                    }
-
-                }
-
+                radioButton1.Enabled = true;
+                radioButton2.Enabled = true;
+                radioButton3.Enabled = true;
 
                 isOn = !isOn;
                 button2.Text = "Start DL";
@@ -381,58 +278,37 @@ namespace bládketvindóz
         private void add9(object sender, AsyncCompletedEventArgs e)
         {
             int l = 9;
-
             if (e.Cancelled)
             {
 
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
 
-        //    wc[l].CancelAsync();
-         //   wc[l].Dispose();
-          //  File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
 
-            idk.Add(a[9]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 10;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-               // File.Move(textBox1.Text + "\\Songs\\" + a[9] + ".osz", textBox1.Text + "\\Songs\\" + a[9] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[9] + ".oszx", textBox1.Text + "\\Songs\\" + a[9] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[9]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc9_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add9;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -444,58 +320,35 @@ namespace bládketvindóz
         {
 
             int l = 8;
-
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
 
-         //   wc[l].CancelAsync();
-         //   wc[l].Dispose();
-          //    File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-
-            idk.Add(a[8]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 9;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-            //    File.Move(textBox1.Text + "\\Songs\\" + a[8] + ".osz", textBox1.Text + "\\Songs\\" + a[8] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[8] + ".oszx", textBox1.Text + "\\Songs\\" + a[8] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[8]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc8_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add8;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -506,58 +359,35 @@ namespace bládketvindóz
         private void add7(object sender, AsyncCompletedEventArgs e)
         {
             int l = 7;
-
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
 
-      //      wc[l].CancelAsync();
-      //      wc[l].Dispose();
-       //     File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-
-            idk.Add(a[7]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 8;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-          //      File.Move(textBox1.Text + "\\Songs\\" + a[7] + ".osz", textBox1.Text + "\\Songs\\" + a[7] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[7] + ".oszx", textBox1.Text + "\\Songs\\" + a[7] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[7]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc7_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add7;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -568,58 +398,35 @@ namespace bládketvindóz
         private void add6(object sender, AsyncCompletedEventArgs e)
         {
             int l = 6;
-
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
 
-         //   wc[l].CancelAsync();
-      //      wc[l].Dispose();
-       //    File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-
-            idk.Add(a[6]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 7;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-          //      File.Move(textBox1.Text + "\\Songs\\" + a[6] + ".osz", textBox1.Text + "\\Songs\\" + a[6] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[6] + ".oszx", textBox1.Text + "\\Songs\\" + a[6] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[6]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc6_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add6;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -631,58 +438,35 @@ namespace bládketvindóz
         {
 
             int l = 5;
-
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
 
-       //    wc[l].CancelAsync();
-       //    wc[l].Dispose();
-        //   File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-
-            idk.Add(a[5]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 6;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-              //  File.Move(textBox1.Text + "\\Songs\\" + a[5] + ".osz", textBox1.Text + "\\Songs\\" + a[5] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[5] + ".oszx", textBox1.Text + "\\Songs\\" + a[5] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[5]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc5_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add5;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -695,58 +479,36 @@ namespace bládketvindóz
 
 
             int l = 4;
-
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
 
-         //   wc[l].CancelAsync();
-         //   wc[l].Dispose();
-           // File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-
-            idk.Add(a[4]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 5;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-                
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-              //  File.Move(textBox1.Text + "\\Songs\\" + a[4] + ".osz", textBox1.Text + "\\Songs\\" + a[4] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[4] + ".oszx", textBox1.Text + "\\Songs\\" + a[4] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+
+                idk.Add(a[4]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc4_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add4;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -756,37 +518,13 @@ namespace bládketvindóz
 
         private void add3(object sender, AsyncCompletedEventArgs e)
         {
-
-
-            int l = 3;
-
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-                wc[l].Dispose();
+                File.Delete(textBox1.Text + "\\Songs\\" + a[3] + ".oszx");
+                wc[3].Dispose();
                 return;
             }
-           // wc[l].CancelAsync();
-          //  wc[l].Dispose();
-          //    File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
 
-            idk.Add(a[3]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
             int y = 4;
             if (y <= threadselected)
             {
@@ -795,21 +533,21 @@ namespace bládketvindóz
 
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-              //  File.Move(textBox1.Text + "\\Songs\\" + a[3] + ".osz", textBox1.Text + "\\Songs\\" + a[3] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[3] + ".oszx", textBox1.Text + "\\Songs\\" + a[3] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[3]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc3_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add3;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -819,65 +557,43 @@ namespace bládketvindóz
 
         private void add2(object sender, AsyncCompletedEventArgs e)
         {
-            int l = 2;
             
             if (e.Cancelled)
             {
-
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-                wc[l].Dispose();
+                File.Delete(textBox1.Text + "\\Songs\\" + a[2] + ".oszx");
+                wc[2].Dispose();
                 return;
             }
 
-        //    wc[l].CancelAsync();
-        //    wc[l].Dispose();
-        //      File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
 
-            idk.Add(a[2]);
-            try
-            {
-                lvi.ListView.Items.Clear();
-
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-
-
-            refillmaps();
-
-            int y = 3;
-            if (y <= threadselected)
-            {
-                int x = y - 1;
-                wc[x].Dispose();
-
-                wc[x] = new WebClient();
-                o[x] = new NetSpeedCounter(wc[x], 5);
-              //  File.Move(textBox1.Text + "\\Songs\\" + a[2] + ".osz", textBox1.Text + "\\Songs\\" + a[2] + ".osz");
-                a[x] = listView1.Items[x].SubItems[0].Text;
-                using (wc[x])
+                int y = 3;
+                if (y <= threadselected)
                 {
+                    int x = y - 1;
+                    wc[x].Dispose();
+                    wc[x] = new WebClient();
+                    o[x] = new NetSpeedCounter(wc[x], 5);
+                     File.Move(textBox1.Text + "\\Songs\\" + a[2] + ".oszx", textBox1.Text + "\\Songs\\" + a[2] + ".osz");
+                    a[x] = listView1.Items[x].SubItems[0].Text;
 
-                    wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
+                    idk.Add(a[2]);
+                    lvi.ListView.Items.Clear();
+                    oldalid--;
+                    ListFill((float)numericUpDown1.Value);
+                    oldalid++;
+                    refillmaps();
 
-
-                    wc[x].DownloadProgressChanged += wc2_DownloadProgressChanged;
-
-
-                    wc[x].DownloadFileCompleted += add2;
-
-
+                    using (wc[x])
+                    {
+                        wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
+                        textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
+                        wc[x].DownloadProgressChanged += wc2_DownloadProgressChanged;
+                        wc[x].DownloadFileCompleted += add2;
+                    }
+                    o[x].Reset();
+                    o[x].Start();
                 }
-                o[x].Reset();
-                o[x].Start();
-
-            }
+    
         }
 
         private void add1(object sender, AsyncCompletedEventArgs e)
@@ -887,44 +603,32 @@ namespace bládketvindóz
             if (e.Cancelled)
             {
 
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
-
-        //    wc[l].CancelAsync();
-       //     wc[l].Dispose();
-       //       File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-            idk.Add(a[1]);
-            lvi.ListView.Items.Clear();
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-            refillmaps();
-
             int y = 2;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-              //  File.Move(textBox1.Text + "\\Songs\\" + a[1] + ".osz", textBox1.Text + "\\Songs\\" + a[1] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[1] + ".oszx", textBox1.Text + "\\Songs\\" + a[1] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[1]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc1_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add1;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -942,44 +646,32 @@ namespace bládketvindóz
             if (e.Cancelled)
             {
 
-                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".osz");
+                File.Delete(textBox1.Text + "\\Songs\\" + a[l] + ".oszx");
                 wc[l].Dispose();
                 return;
             }
-     //       wc[l].Dispose();
-     //       File.Move(textBox1.Text + "\\Songs\\" + a[l] + ".osz", textBox1.Text + "\\Songs\\" + a[l] + ".osz");
-
-            idk.Add(a[0]);
-            lvi.ListView.Items.Clear();
-            oldalid--;
-            listFill((float)numericUpDown1.Value);
-            oldalid++;
-            refillmaps();
-
-
             int y = 1;
             if (y <= threadselected)
             {
                 int x = y - 1;
                 wc[x].Dispose();
-
                 wc[x] = new WebClient();
                 o[x] = new NetSpeedCounter(wc[x], 5);
-              //  File.Move(textBox1.Text + "\\Songs\\" + a[0] + ".osz", textBox1.Text + "\\Songs\\" + a[0] + ".osz");
+                File.Move(textBox1.Text + "\\Songs\\" + a[0] + ".oszx", textBox1.Text + "\\Songs\\" + a[0] + ".osz");
                 a[x] = listView1.Items[x].SubItems[0].Text;
+                idk.Add(a[0]);
+                lvi.ListView.Items.Clear();
+                oldalid--;
+                ListFill((float)numericUpDown1.Value);
+                oldalid++;
+                refillmaps();
+
                 using (wc[x])
                 {
-
                     wc[x].DownloadFileAsync(new System.Uri("http://bloodcat.com/osu/s/" + a[x]),
-                    textBox1.Text + "\\Songs\\" + a[x] + ".osz");
-
-
+                    textBox1.Text + "\\Songs\\" + a[x] + ".oszx");
                     wc[x].DownloadProgressChanged += wc_DownloadProgressChanged;
-
-
                     wc[x].DownloadFileCompleted += add;
-
-
                 }
                 o[x].Reset();
                 o[x].Start();
@@ -1040,18 +732,16 @@ namespace bládketvindóz
 
         public void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-
             //string[] seb = new string[threads];
             string[] downloadedbytes = new string[threads];
-
             for (int i = 0; i < threads; i++)
-           {
+            {
 
                 speedsum += o[i].Speed;
                 //seb[i] = (o[i].Speed.ToString()) + " kb/s";
                 downloadedbytes[i] = ((o[i].ReceivedBytes/1024).ToString("##")) + " kb" ;
 
-           }
+            }
             
 
         //    toolStripStatusLabel1.Text = "Download speed: " + ((speedsum).ToString("##")) + " kb /s"; //javítani majd :D
@@ -1061,46 +751,18 @@ namespace bládketvindóz
 
         }
 
-        private int threadcount(int c = 0)
-        {
-
-            try
-            {
-                for (int i = 0; i < threadselected; i++)
-                {
-                    if (wc[i].IsBusy) c++;
-
-                }
-                return c;
-
-
-            }
-            catch (Exception) { return c; }
-
-
-
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
-           
-
-
-            folderBrowserDialog1.ShowDialog();
-            textBox1.Text = folderBrowserDialog1.SelectedPath;
+            var dialog = new Ookii.Dialogs.VistaFolderBrowserDialog();
+            dialog.ShowDialog();     
+            textBox1.Text = dialog.SelectedPath;
             
             try
             {
                 WhichMapsDoIHave(ref idk);
                 button2.Enabled = true;
             }
-            catch (DirectoryNotFoundException k)
-            {
-                
-            }
-
-            
-
+            catch (DirectoryNotFoundException) { }
             for (int i = 0; i < idk.Count; i++)
             {
                 idk[i] = idk[i].Split(' ')[0];
@@ -1109,52 +771,28 @@ namespace bládketvindóz
             button1.Enabled = true;
         }
 
-        private void label13_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void selectAR_ValueChanged(object sender, EventArgs e)
         {
-            
-
-            
             try
             {
                 lvi.ListView.Items.Clear();
-
             }
-            catch (NullReferenceException)
-            {
-            }
-
-
-
+            catch (NullReferenceException) { }
 
             oldalid--;          
-            listFill((float)numericUpDown1.Value);
+            ListFill((float)numericUpDown1.Value);
             oldalid++;
         }
         
 
         private void refillmaps()
         {
-
             try
             {
-
                 while (lvi.ListView.Items.Count < threadselected)
-            {
-
-                
-
-                    
-               
-                button1_Click(this, EventArgs.Empty);       //request new page
-
-            }
-
-
+                  {
+                      button1_Click(this, EventArgs.Empty);       //request new page
+                  }
             }
             catch (NullReferenceException)
             {
@@ -1162,16 +800,12 @@ namespace bládketvindóz
                 {
                     button1_Click(this, EventArgs.Empty);
                 }
-
                 refillmaps();
-
-
             }
             
         }
 
         int threadselected;
-
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             threadselected = 1;
@@ -1188,14 +822,11 @@ namespace bládketvindóz
            progressBar9.Visible = false;
            progressBar10.Visible = false;
            progressBar1.Visible = true;
-
-
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
         {
             threadselected = 5;
-
             refillmaps();
 
            progressBar6.Visible = false;
@@ -1213,7 +844,6 @@ namespace bládketvindóz
         private void radioButton3_CheckedChanged(object sender, EventArgs e)
         {
             threadselected = 10;
-
             refillmaps();
 
            progressBar10.Visible = true;

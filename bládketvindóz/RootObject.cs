@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace bládketvindóz
 {
-    class RootObject
+    public class RootObject
     {
 
         public string synced { get; set; }
